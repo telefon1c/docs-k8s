@@ -13,6 +13,8 @@ spec:
       labels:
         app: docs-v4
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: nginx
           image: ghcr.io/telefon1c/docs-v4:latest
