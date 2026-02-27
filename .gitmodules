@@ -1,6 +1,6 @@
 [submodule "content/v4"]
 	path = content/v4
-	url = git@github.com:telefon1c/wiki.git
+	url = https://github.com/telefon1c/wiki.git
 [submodule "content/v5"]
 	path = content/v5
-	url = git@github.com:telefon1c/wiki-v5.git
+	url = https://github.com/telefon1c/wiki-v5.git
