@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs-v5
+  namespace: docs-telefon1c
+spec:
+  type: ClusterIP
+  selector:
+    app: docs-v5
+  ports:
+    - port: 80
+      targetPort: 80
