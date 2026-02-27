@@ -3,7 +3,7 @@
 ## Архитектура
 
 ```
-docs.telefon1c.ru → Traefik (k3s) → nginx pods (v4/v5)
+docs.telefon1c.ru → Traefik (публичный, HTTPS/LE) → Traefik (k3s, NodePort 30629) → nginx pods (v4/v5)
 cdn.docs.telefon1c.ru → Yandex CDN → Yandex S3 bucket (docs-telefon1c-cdn)
 ```
 
@@ -14,18 +14,16 @@ cdn.docs.telefon1c.ru → Yandex CDN → Yandex S3 bucket (docs-telefon1c-cdn)
 
 ```
 docs.telefon1c.ru/              ← telefon1c/docs-k8s (этот репо)
-├── v4/                          # K8s манифесты v4 (deployment, service, kustomization)
-├── v5/                          # K8s манифесты v5
+├── v4/                          # Инфраструктура v4: k8s манифесты + Dockerfile + nginx
+├── v5/                          # Инфраструктура v5: k8s манифесты + Dockerfile + nginx
 ├── content/
 │   ├── v4/                      # submodule → telefon1c/wiki
 │   │   ├── src/                 #   контент документации v4
-│   │   ├── Dockerfile           #   Docker-образ v4
-│   │   ├── nginx/default.conf   #   nginx конфиг v4
+│   │   ├── retype.yml           #   конфиг Retype
 │   │   └── .github/workflows/   #   CI v4 (caller → reusable)
 │   └── v5/                      # submodule → telefon1c/wiki-v5
 │       ├── src/                 #   контент документации v5
-│       ├── Dockerfile           #   Docker-образ v5
-│       ├── nginx/default.conf   #   nginx конфиг v5
+│       ├── retype.yml           #   конфиг Retype
 │       └── .github/workflows/   #   CI v5 (caller → reusable)
 └── .claude/CLAUDE.md
 ```
@@ -35,8 +33,8 @@ docs.telefon1c.ru/              ← telefon1c/docs-k8s (этот репо)
 | Репо | Назначение |
 |------|-----------|
 | `telefon1c/docs-k8s` | Суперрепо: K8s манифесты + submodules контента |
-| `telefon1c/wiki` | Контент v4, Dockerfile, nginx, CI (submodule в content/v4) |
-| `telefon1c/wiki-v5` | Контент v5, Dockerfile, nginx, CI (submodule в content/v5) |
+| `telefon1c/wiki` | Контент v4, retype.yml, CI caller (submodule в content/v4) |
+| `telefon1c/wiki-v5` | Контент v5, retype.yml, CI caller (submodule в content/v5) |
 | `telefon1c/.github` | Reusable workflow `retype-build.yml` (общий CI) |
 | `k3s-miko/Docs-Telefon1c/` | Namespace, Ingress, ArgoCD Applications |
 
@@ -66,11 +64,10 @@ docs.telefon1c.ru/              ← telefon1c/docs-k8s (этот репо)
 - [x] Фаза 0 — Yandex S3 bucket, CDN resource, SSL, DNS для cdn.docs.telefon1c.ru, GitHub secrets
 - [x] Фаза 1 — CI/CD: reusable workflow, Docker build → ghcr.io, S3 upload ассетов
 - [x] Фаза 2 — Деплой в k3s: namespace, ingress, ArgoCD apps, imagePullSecret, поды Running
+- [x] Фаза 3 — DNS переключен: `docs.telefon1c.ru` → CNAME `traefikserver.miko.ru` (93.188.43.131)
+- [x] HTTPS на основном домене: публичный Traefik, `letsencrypt-http`, конфиг `headscale-dapl/traefik/dynamic/docs-telefon1c.yaml`
 
 ## Невыполненные задачи
-
-- [ ] **Фаза 3 — Переключение DNS**: понизить TTL за 24ч, переключить `docs.telefon1c.ru` с CNAME на A-запись k3s (NodePort 30629 или настроить LB)
-- [ ] **HTTPS на основном домене**: настроить TLS в Traefik для `docs.telefon1c.ru` (cert-manager / Let's Encrypt)
 - [ ] **GitHub Pages fallback**: убрать через 2 недели после DNS — удалить шаг из workflow и параметр `enable-github-pages`
 - [ ] **Ротация PAT**: ghcr-pull-secret использует PAT с read:packages, ротировать до истечения (или сделать пакеты публичными)
 - [x] ~~Удалить k8s/ из wiki и wiki-v5~~ — выполнено
