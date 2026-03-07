@@ -29,11 +29,11 @@ docs.telefon1c.ru/              ← telefon1c/docs-k8s (этот репо)
 ├── content/
 │   ├── v4/                      # submodule → telefon1c/wiki (HTTPS)
 │   │   ├── src/                 #   контент документации v4
-│   │   ├── retype.yml           #   конфиг Retype (url: /v4/)
+│   │   ├── retype.yml           #   конфиг Retype (url: /, CI патчит на /v4/)
 │   │   └── .github/workflows/   #   CI v4 (caller → reusable)
 │   └── v5/                      # submodule → telefon1c/wiki-v5 (HTTPS)
 │       ├── src/                 #   контент документации v5
-│       ├── retype.yml           #   конфиг Retype (url: /v5/)
+│       ├── retype.yml           #   конфиг Retype (url: /, CI патчит на /v5/)
 │       └── .github/workflows/   #   CI v5 (caller → reusable)
 └── .claude/CLAUDE.md
 ```
@@ -43,8 +43,8 @@ docs.telefon1c.ru/              ← telefon1c/docs-k8s (этот репо)
 | Репо | Назначение |
 |------|-----------|
 | `telefon1c/docs-k8s` | Суперрепо: K8s манифесты + Dockerfile + nginx + submodules контента |
-| `telefon1c/wiki` | Контент v4, retype.yml (url: /v4/), CI caller (submodule в content/v4) |
-| `telefon1c/wiki-v5` | Контент v5, retype.yml (url: /v5/), CI caller (submodule в content/v5) |
+| `telefon1c/wiki` | Контент v4, retype.yml (url: /, CI патчит на /v4/), CI caller (submodule в content/v4) |
+| `telefon1c/wiki-v5` | Контент v5, retype.yml (url: /, CI патчит на /v5/), CI caller (submodule в content/v5) |
 | `telefon1c/.github` | Reusable workflow `retype-build.yml` (общий CI), локально: `/Users/nb/Developement/telefon1c-github/` |
 | `k3s-miko/Docs-Telefon1c/` | Namespace, Ingress, ArgoCD Applications |
 | `headscale-dapl/traefik/dynamic/` | `docs-telefon1c.yaml` — публичный Traefik роутер |
@@ -85,6 +85,7 @@ sub_filter заменяет `/assets/` и относительные `../assets/
 - [x] HTTPS: публичный Traefik, `letsencrypt-http`, конфиг `headscale-dapl/traefik/dynamic/docs-telefon1c.yaml`
 - [x] Редирект `/` → `/v4/` (301, https)
 - [x] v4 retype.yml: url `/v4/`, контент в `/usr/share/nginx/html/v4/` (аналогично v5)
+- [x] retype.yml url без версии: писатель работает с `url: /`, CI патчит на `/v4/` или `/v5/` через `sed` перед сборкой (шаг в `retype-build.yml`)
 - [x] ArgoCD Image Updater: digest strategy, pull-secret для ghcr.io, repo secret без submodules
 - [x] S3 MIME fix: CSS файлы загружаются с `--mime-type=text/css`
 
